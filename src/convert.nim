@@ -16,16 +16,14 @@ var converters: Table[(Lang, Lang), proc(code: string): string]
 proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(code: string): string =
   return proc(code: string): string =
     let (output, err_code) = exec_cmd_ex(&"""echo {code.quote_shell} | {converter_dir_path}/conv""")
-    if err_code != 0:
-      abort &"Error converting {from_lang} -> {to_lang}:\n{output}"
+    assert err_code == 0, &"Error converting {from_lang} -> {to_lang}:\n{output}"
     return output
 
 for converter_dir in walk_dir("./conv", true):
   let parts = converter_dir.path.split("_to_")
   let converter_dir_path = "./conv" / converter_dir.path
   let converter_path = converter_dir_path / "conv"
-  if not file_exists(converter_path):
-    abort &"Folder '{converter_dir_path}' exists but is missing converter '{converter_path}'"
+  assert file_exists(converter_path), &"Folder '{converter_dir_path}' exists but is missing converter '{converter_path}'"
   let from_lang = parts[0].parse_lang.get
   let to_lang = parts[1].parse_lang.get
   assert (from_lang, to_lang) notin converters, &"Duplicate converter {from_lang} -> {to_lang}"
@@ -60,19 +58,17 @@ proc is_convertable_to*(from_lang, to_lang: Lang): bool =
   calc_conversion_chain(from_lang, to_lang).is_some
 
 proc convert*(code: string, from_lang, to_lang: Lang, verbose = false): string =
-  let chain = calc_conversion_chain(from_Lang, to_lang)
+  assert from_lang.is_convertable_to(to_lang), &"Cannot convert from {from_lang} to {to_lang}"
 
-  if chain.is_none:
-    abort &"Cannot convert from {from_lang} to {to_lang}"
-  else:
-    let chain = chain.get
-    if verbose: echo &"Converting {from_lang} -> {to_lang} via {chain.join(\" -> \")}"
+  let chain = calc_conversion_chain(from_Lang, to_lang).get
 
-    # Begin the conversions!
-    var code = code
-    var cur_lang = from_lang
-    for next_lang in chain[1 ..< chain.len]:  # first in chain is from_lang
-      code = converters[(cur_lang, next_lang)](code)
-      cur_lang = next_lang
+  if verbose: echo &"Converting {from_lang} -> {to_lang} via {chain.join(\" -> \")}"
 
-    return code
+  # Begin the conversions!
+  var code = code
+  var cur_lang = from_lang
+  for next_lang in chain[1 ..< chain.len]:  # first in chain is from_lang
+    code = converters[(cur_lang, next_lang)](code)
+    cur_lang = next_lang
+
+  return code

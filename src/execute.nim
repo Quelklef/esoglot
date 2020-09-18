@@ -16,8 +16,7 @@ var executors: Table[Lang, proc(code: string)]
 proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
   return proc(code: string) =
     let err_code = exec_cmd(&"""echo {code.quote_shell} | ./exec/{executor_name}/exec""")
-    if err_code != 0:
-      abort &"Error executing {lang} code"
+    assert err_code == 0, &"Error executing {lang} code"
 
 for executor_dir in walk_dir("./exec", true):
   let executor_name = executor_dir.path
@@ -39,8 +38,7 @@ proc execute*(code: string, lang: Lang, verbose = true) =
       .filter(to_lang => to_lang.is_directly_executable and lang.is_convertable_to to_lang)
       .min_by(to_lang => calc_conversion_chain(from_lang, to_lang).get.len)
 
-    if closest_directly_executable_lang.is_none:
-      abort "No possible conversion"
+    assert closest_directly_executable_lang.is_some, "No possible conversion"
 
     code = convert(code, lang, closest_directly_executable_lang.get, verbose)
     lang = closest_directly_executable_lang.get

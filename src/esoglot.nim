@@ -39,8 +39,7 @@ when is_main_module:
   let verbose = "verbose" in flags
 
   let command = words[0]
-  if command notin ["c", "e"]:
-    abort "Expected either 'c' (convert) or 'e' (execute)"
+  assert command in ["c", "e"], "Expected either 'c' (convert) or 'e' (execute)"
 
   if command == "c":
     let from_lang = pairs["from"].parse_lang.get

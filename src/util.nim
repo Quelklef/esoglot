@@ -3,10 +3,6 @@ import options
 proc last*[T](s: seq[T]): T =
     s[s.len - 1]
 
-proc abort*(err: string) =
-  echo err
-  quit 1
-
 proc min_by*[T; K: Ordinal](s: seq[T], key: proc(x: T): K): Option[T] =
   if s.len == 0:
     return none(T)
