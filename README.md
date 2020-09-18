@@ -4,7 +4,7 @@ Esoglot is an [esolang](esolangs.org) cross-compiler and interpreter.
 
 The ultimate goal of esoglot is to allow for compilation from just about any esolang to just about any other (bar differences in computational class or other insurmountable barriers).
 
-# Usage
+## Usage
 
 Esoglot is written in [Nim](https://nim-lang.org/), so you will need to have Nim installed in order to use it.
 
@@ -35,11 +35,21 @@ esoglot e -l:<the-lang> [--verbose | -v]
 ```
 If Esoglot doesn't know how to execute the given language, it will try to convert it to a language that it does know how to execute.
 
-# Languages Supported
+## Languages Supported
 
-- Ook!
-- Brainfuck
+[comment]: <> (BEGIN LANG LIST)
 
-# Contributing
+- [**Brainfuck**](http://esolangs.org/wiki/brainfuck)
+  - Executable
+- [**Ook!**](http://esolangs.org/wiki/Ook)
+  - Convertable to Brainfuck
+
+[comment]: <> (END LANG LIST)
+
+## Contributing
 
 TODO
+
+
+
+

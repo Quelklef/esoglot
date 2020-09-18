@@ -23,7 +23,7 @@ for executor_dir in walk_dir("./exec", true):
   let lang = executor_name.parse_lang.get
   executors[lang] = make_executor(executor_name, lang)
 
-proc is_directly_executable(lang: Lang): bool =
+proc is_directly_executable*(lang: Lang): bool =
   lang in executors
 
 proc execute*(code: string, lang: Lang, verbose = false) =

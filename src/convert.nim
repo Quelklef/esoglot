@@ -29,7 +29,7 @@ for converter_dir in walk_dir("./conv", true):
   assert (from_lang, to_lang) notin converters, &"Duplicate converter {from_lang} -> {to_lang}"
   converters[(from_lang, to_lang)] = make_converter(from_lang, to_lang, converter_dir_path)
 
-proc directly_convertable_from(from_lang: Lang): seq[Lang] =
+proc directly_convertable_from*(from_lang: Lang): seq[Lang] =
   for to_lang in langs.all_langs:
     if (from_lang, to_lang) in converters:
       result.add: to_lang

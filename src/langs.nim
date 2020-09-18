@@ -23,6 +23,9 @@ proc `$`*(lang: Lang): string =
   {.no_side_effect.}:  # :^)
     return langs_meta[lang].name
 
+proc page*(lang: Lang): string =
+  langs_meta[lang].page
+
 let root_toml = parsetoml.parse_file("./langs.toml")
 for lang_toml in root_toml["langs"].get_elems:
   let meta = (
