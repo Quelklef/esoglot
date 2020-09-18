@@ -26,7 +26,7 @@ for executor_dir in walk_dir("./exec", true):
 proc is_directly_executable(lang: Lang): bool =
   lang in executors
 
-proc execute*(code: string, lang: Lang, verbose = true) =
+proc execute*(code: string, lang: Lang, verbose = false) =
 
   var code = code
   var lang = lang
