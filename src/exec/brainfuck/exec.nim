@@ -65,10 +65,27 @@ proc parse(code: string): seq[Instr] =
     else: discard
 
 proc exec(instrs: seq[Instr]) =
-  var tape: seq[uint8] = @[0'u8]
+
+  # Represent the tape as two sequences,
+  # one at positive positions (and 0)
+  # and one at negative positions
+  var tape_pos: seq[uint8] = @[0'u8]
+  var tape_neg: seq[uint8] = @[]
+
+  template tape_get(idx: int): uint8 =
+    if idx >= 0:
+      tape_pos[idx]
+    else:
+      tape_neg[-idx - 1]
+
+  template tape_set(idx: int, val: uint8) =
+    if idx >= 0:
+      tape_pos[idx] = val
+    else:
+      tape_neg[-idx - 1] = val
 
   var instr_ptr: uint64 = 0
-  var tape_ptr: uint64 = 0
+  var tape_ptr: int = 0
 
   while instr_ptr < instrs.len.uint64:
     let instr = instrs[instr_ptr]
@@ -77,35 +94,35 @@ proc exec(instrs: seq[Instr]) =
 
     of ik_right:
       tape_ptr.inc
-      if tape_ptr >= tape.len.uint64:
-        tape.add 0
+      if tape_ptr >= tape_pos.len:
+        tape_pos.add 0
       instr_ptr += 1
 
     of ik_left:
-      if tape_ptr == 0:
-        abort "Out of bounds"
       tape_ptr.dec
+      if -tape_ptr - 1 >= tape_neg.len:
+        tape_neg.add 0
       instr_ptr += 1
 
     of ik_inc:
-      tape[tape_ptr] += 1
+      tape_set tape_ptr, tape_get(tape_ptr) + 1
       instr_ptr += 1
 
     of ik_dec:
-      tape[tape_ptr] -= 1
+      tape_set tape_ptr, tape_get(tape_ptr) - 1
       instr_ptr += 1
 
     of ik_put:
-      stdout.write cast[char](tape[tape_ptr])
+      stdout.write cast[char](tape_get tape_ptr)
       instr_ptr += 1
 
     of ik_get:
       let ch = try: stdin.read_char except EOFError: '\0'
-      tape[tape_ptr] = cast[uint8](ch)
+      tape_set tape_ptr, cast[uint8](ch)
       instr_ptr += 1
 
     of ik_open:
-      if tape[tape_ptr] == 0:
+      if tape_get(tape_ptr) == 0:
         instr_ptr = instr.target + 1
       else:
         instr_ptr += 1
