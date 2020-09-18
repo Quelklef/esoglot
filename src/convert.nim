@@ -43,10 +43,14 @@ proc calc_conversion_chain*(from_lang, to_lang: Lang): Option[seq[Lang]] =
   var seen = initHashSet[Lang]()
   var paths = @[@[from_lang]]
 
-  while seen.len < langs.all_langs.len:
+  while true:
     for path in paths:
       if path.last == to_lang:
         return some(path)
+
+    if seen.len == langs.all_langs.len:
+      break
+
     for path_i, path in paths:
       let novel = directly_convertable_from(path.last).filterIt(it notin seen)
       for it in novel: seen.incl it
