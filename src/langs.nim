@@ -16,6 +16,7 @@ var all_langs* = initHashSet[Lang]()
 var langs_meta = initTable[Lang, tuple[
   name: string;
   code: string;
+  page: string;
 ]]()
 
 proc `$`*(lang: Lang): string =
@@ -27,6 +28,7 @@ for lang_toml in root_toml["langs"].get_elems:
   let meta = (
     name: lang_toml["name"].get_str,
     code: lang_toml["code"].get_str,
+    page: lang_toml["page"].get_str,
   )
   assert Lang(meta.code) notin all_langs
   all_langs.incl Lang(meta.code)

@@ -1,7 +1,9 @@
 [[langs]]
 name = "Brainfuck"
 code = "brainfuck"
+page = "http://esolangs.org/wiki/brainfuck"
 
 [[langs]]
 name = "Ook!"
 code = "ook"
+page = "http://esolangs.org/wiki/Ook"
