@@ -1,0 +1,7 @@
+[[langs]]
+name = "Brainfuck"
+code = "brainfuck"
+
+[[langs]]
+name = "Ook!"
+code = "ook"

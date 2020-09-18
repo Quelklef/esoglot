@@ -2,14 +2,16 @@ import strformat
 import strutils
 import sequtils
 import options
+import tables
 import osproc
+import sets
 import os
 
 import util
 import langs
 
-# converter[lang1][lang2] is a converter from lang1 to lang2, if it exits
-var converters: array[Lang, array[Lang, Option[proc(code: string): string]]]
+# converter[(lang1, lang2)] is a converter from lang1 to lang2, if it exits
+var converters: Table[(Lang, Lang), proc(code: string): string]
 
 proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(code: string): string =
   return proc(code: string): string =
@@ -26,11 +28,12 @@ for converter_dir in walk_dir("./conv", true):
     abort &"Folder '{converter_dir_path}' exists but is missing converter '{converter_path}'"
   let from_lang = parts[0].parse_lang.get
   let to_lang = parts[1].parse_lang.get
-  converters[from_lang][to_lang] = some(make_converter(from_lang, to_lang, converter_dir_path))
+  assert (from_lang, to_lang) notin converters, &"Duplicate converter {from_lang} -> {to_lang}"
+  converters[(from_lang, to_lang)] = make_converter(from_lang, to_lang, converter_dir_path)
 
 proc directly_convertable_from(from_lang: Lang): seq[Lang] =
-  for to_lang in Lang:
-    if converters[from_lang][to_lang].is_some:
+  for to_lang in langs.all_langs:
+    if (from_lang, to_lang) in converters:
       result.add: to_lang
 
 proc calc_conversion_chain*(from_lang, to_lang: Lang): Option[seq[Lang]] =
@@ -39,11 +42,10 @@ proc calc_conversion_chain*(from_lang, to_lang: Lang): Option[seq[Lang]] =
 
   # Just does a BFS
 
-  var seen: set[Lang] = {}
+  var seen = initHashSet[Lang]()
   var paths = @[@[from_lang]]
 
-  const lang_count = Lang.high.ord + 1
-  while seen.len < lang_count:
+  while seen.len < langs.all_langs.len:
     for path in paths:
       if path.last == to_lang:
         return some(path)
@@ -64,14 +66,13 @@ proc convert*(code: string, from_lang, to_lang: Lang, verbose = false): string =
     abort &"Cannot convert from {from_lang} to {to_lang}"
   else:
     let chain = chain.get
-    if verbose:
-      echo &"Converting {from_lang} -> {to_lang} via " & chain.join(" -> ")
+    if verbose: echo &"Converting {from_lang} -> {to_lang} via {chain.join(\" -> \")}"
 
     # Begin the conversions!
     var code = code
     var cur_lang = from_lang
     for next_lang in chain[1 ..< chain.len]:  # first in chain is from_lang
-      code = converters[cur_lang][next_lang].get()(code)
+      code = converters[(cur_lang, next_lang)](code)
       cur_lang = next_lang
 
     return code

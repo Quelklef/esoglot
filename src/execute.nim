@@ -1,15 +1,17 @@
 import strformat
 import sequtils
 import options
+import tables
 import osproc
 import sugar
+import sets
 import os
 
 import util
 import langs
 import convert
 
-var executors: array[Lang, Option[proc(code: string)]]
+var executors: Table[Lang, proc(code: string)]
 
 proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
   return proc(code: string) =
@@ -20,10 +22,10 @@ proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
 for executor_dir in walk_dir("./exec", true):
   let executor_name = executor_dir.path
   let lang = executor_name.parse_lang.get
-  executors[lang] = some(make_executor(executor_name, lang))
+  executors[lang] = make_executor(executor_name, lang)
 
 proc is_directly_executable(lang: Lang): bool =
-  executors[lang].is_some
+  lang in executors
 
 proc execute*(code: string, lang: Lang, verbose = true) =
 
@@ -33,7 +35,7 @@ proc execute*(code: string, lang: Lang, verbose = true) =
     if verbose: echo &"Cannot execute {lang} code directly, will try a conversion..."
 
     let from_lang = lang
-    let closest_directly_executable_lang = all_langs
+    let closest_directly_executable_lang = all_langs.to_seq
       .filter(to_lang => to_lang.is_directly_executable and lang.is_convertable_to to_lang)
       .min_by(to_lang => calc_conversion_chain(from_lang, to_lang).get.len)
 
@@ -44,4 +46,4 @@ proc execute*(code: string, lang: Lang, verbose = true) =
     lang = closest_directly_executable_lang.get
     if verbose: echo "Conversion ok"
 
-  executors[lang].get()(code)
+  executors[lang](code)

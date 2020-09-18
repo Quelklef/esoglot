@@ -1,29 +1,39 @@
+import parsetoml
+import strutils
 import options
 import tables
-import strutils
+import hashes
+import sets
 
-type Lang* = enum
-  lang_brainfuck
-  lang_ook
+## A valid language code
+type Lang* = distinct string
 
-const lang_count* = Lang.high.ord + 1
+proc hash*(lang: Lang): Hash {.borrow.}
+proc `==`*(l1, l2: Lang): bool {.borrow.}
 
-const all_langs* = block:
-  var langs = newSeq[Lang](lang_count)
-  for lang in Lang.low .. Lang.high:
-    langs.add lang
-  langs
+var all_langs* = initHashSet[Lang]()
 
-proc parse_lang*(lang_name: string): Option[Lang] =
-  let langs {.global.} = {
-    "brainfuck": lang_brainfuck,
+var langs_meta = initTable[Lang, tuple[
+  name: string;
+  code: string;
+]]()
 
-    "ook!": lang_ook,
-    "ook": lang_ook,
-  }.toTable
+proc `$`*(lang: Lang): string =
+  {.no_side_effect.}:  # :^)
+    return langs_meta[lang].name
 
-  if lang_name in langs:
-    return some(langs[lang_name.to_lower_ascii])
-  else:
-    return none(Lang)
+let root_toml = parsetoml.parse_file("./langs.toml")
+for lang_toml in root_toml["langs"].get_elems:
+  let meta = (
+    name: lang_toml["name"].get_str,
+    code: lang_toml["code"].get_str,
+  )
+  assert Lang(meta.code) notin all_langs
+  all_langs.incl Lang(meta.code)
+  langs_meta[Lang(meta.code)] = meta
 
+proc parse_lang*(lang_code: string): Option[Lang] =
+  let lang_code = lang_code.to_lower_ascii
+  if Lang(lang_code) in all_langs:
+    return some(Lang(lang_code))
+  return none(Lang)
