@@ -1,3 +1,5 @@
+import strutils
+import sequtils
 import os
 
 proc abort(msg: string): void =
@@ -50,6 +52,7 @@ proc find_open(code: string, close_idx: int): int =
   abort "Unmatched brace at position " & $close_idx
 
 proc parse(code: string): seq[Instr] =
+  let code = code.to_seq.filterIt(it in "><+-.,[]").join("")
   for idx, ch in code:
     case ch
     of '>': result.add Instr(kind: ik_right)
