@@ -25,13 +25,13 @@ The first is conversion from one language to another.
 The languages are provided as arguments, but the source code is given via stdin.
 The compiled result will be printed to stdout.
 ```sh
-esoglot c -f:<from-lang> -t:<to-lang> [--verbose]
+esoglot c -f:<from-lang> -t:<to-lang> [--verbose | -v]
 ```
 
 The second usage is for execution of a language.
 The language is given as an argument and the source code is given via stdin.
 ```sh
-esoglot e -l:<the-lang>
+esoglot e -l:<the-lang> [--verbose | -v]
 ```
 If Esoglot doesn't know how to execute the given language, it will try to convert it to a language that it does know how to execute.
 
