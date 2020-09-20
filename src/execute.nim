@@ -9,13 +9,15 @@ import os
 
 import util
 import langs
+import builds
 import convert
 
-var executors: Table[Lang, proc(code: string)]
+var executors: Table[Lang, proc(code: string, verbose: bool)]
 
-proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
-  return proc(code: string) =
-    let err_code = exec_cmd(&"""echo {code.quote_shell} | ./exec/{executor_name}/exec""")
+proc make_executor(executor_name: string, lang: Lang): proc(code: string, verbose: bool) =
+  return proc(code: string, verbose: bool) =
+    builds.ensure_at_latest &"./exec/{executor_name}", verbose
+    let err_code = exec_cmd(&"(cd ./exec/{executor_name} && echo {code.quote_shell} | sh _run.sh)")
     assert err_code == 0, &"Error executing {lang} code"
 
 for executor_dir in walk_dir("./exec", true):
@@ -26,7 +28,7 @@ for executor_dir in walk_dir("./exec", true):
 proc is_directly_executable*(lang: Lang): bool =
   lang in executors
 
-proc execute*(code: string, lang: Lang, verbose = false) =
+proc execute*(code: string, lang: Lang, verbose: bool) =
 
   var code = code
   var lang = lang
@@ -44,4 +46,4 @@ proc execute*(code: string, lang: Lang, verbose = false) =
     lang = closest_directly_executable_lang.get
     if verbose: echo "Conversion ok"
 
-  executors[lang](code)
+  executors[lang](code, verbose)
