@@ -9,7 +9,6 @@ import convert
 import execute
 import verbose
 import langs
-import util
 
 when is_main_module:
   var flags = initHashSet[string]()

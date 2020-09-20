@@ -1,6 +1,5 @@
 import strutils
 import sequtils
-import os
 
 proc abort(msg: string): void =
   echo msg

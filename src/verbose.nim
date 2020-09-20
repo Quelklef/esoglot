@@ -1,4 +1,3 @@
-import strformat
 import terminal
 
 type Verbosity* = enum
