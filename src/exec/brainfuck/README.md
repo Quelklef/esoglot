@@ -1,0 +1,3 @@
+- cells are 8-bit
+- tape is unbounded both to the left and the right
+- on EOF, `,` sets the current cell to zero
