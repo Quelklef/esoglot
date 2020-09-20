@@ -4,6 +4,8 @@ import osproc
 import times
 import os
 
+import verbose
+
 #[
 
 This module handles directories with a '_build.sh' file in them.
@@ -21,7 +23,7 @@ proc dir_last_modification_timestamp(path: string): int64 =
     max_modification_timestamp = max(last_modified, max_modification_timestamp)
   return max_modification_timestamp
 
-proc at_latest(path: string, verbose: bool): bool =
+proc at_latest(path: string): bool =
   if not file_exists(path / build_time_filename):
     return false
 
@@ -33,15 +35,15 @@ proc at_latest(path: string, verbose: bool): bool =
   try:
     build_timestamp = build_time_str.parse_int
   except ValueError:
-    if verbose: echo &"warning: build time file at '{path}' corrupted"
+    verbose.warn &"Build time file at '{path}' corrupted"
     return false
 
   return path.dir_last_modification_timestamp <= build_timestamp
 
-proc ensure_at_latest*(path: string, verbose: bool) =
-  if not path.at_latest(verbose):
+proc ensure_at_latest*(path: string) =
+  if not path.at_latest:
 
-    if verbose: echo &"Path '{path}' not at latest build; rebuilding"
+    verbose.info &"Path '{path}' not at latest build; rebuilding"
     let (output, err_code) = exec_cmd_ex(&"(cd {path} && sh _build.sh)")
     assert err_code == 0, &"Error building '{path}':\n{output}"
 

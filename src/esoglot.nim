@@ -7,6 +7,7 @@ import os
 
 import convert
 import execute
+import verbose
 import langs
 import util
 
@@ -36,7 +37,8 @@ when is_main_module:
     of cmdEnd:
       discard
 
-  let verbose = "verbose" in flags
+  if "verbose" in flags:
+    verbose.verbosity = v_all
 
   let command = words[0]
   assert command in ["c", "e"], "Expected either 'c' (convert) or 'e' (execute)"
@@ -45,9 +47,9 @@ when is_main_module:
     let from_lang = pairs["from"].parse_lang.get
     let to_lang = pairs["to"].parse_lang.get
     let code = stdin.read_all.string
-    let converted = convert(code, from_lang, to_lang, verbose)
+    let converted = convert(code, from_lang, to_lang)
     echo converted
   else:
     let lang = pairs["lang"].parse_lang.get
     let code = stdin.read_all.string
-    execute(code, lang, verbose)
+    execute(code, lang)

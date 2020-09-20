@@ -10,13 +10,14 @@ import os
 import util
 import langs
 import builds
+import verbose
 import convert
 
-var executors: Table[Lang, proc(code: string, verbose: bool)]
+var executors: Table[Lang, proc(code: string)]
 
-proc make_executor(executor_name: string, lang: Lang): proc(code: string, verbose: bool) =
-  return proc(code: string, verbose: bool) =
-    builds.ensure_at_latest &"./exec/{executor_name}", verbose
+proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
+  return proc(code: string) =
+    builds.ensure_at_latest &"./exec/{executor_name}"
     let err_code = exec_cmd(&"(cd ./exec/{executor_name} && echo {code.quote_shell} | sh _run.sh)")
     assert err_code == 0, &"Error executing {lang} code"
 
@@ -28,12 +29,12 @@ for executor_dir in walk_dir("./exec", true):
 proc is_directly_executable*(lang: Lang): bool =
   lang in executors
 
-proc execute*(code: string, lang: Lang, verbose: bool) =
+proc execute*(code: string, lang: Lang) =
 
   var code = code
   var lang = lang
   if not lang.is_directly_executable:
-    if verbose: echo &"Cannot execute {lang} code directly, will try a conversion..."
+    verbose.info &"Cannot execute {lang} code directly, will try a conversion..."
 
     let from_lang = lang
     let closest_directly_executable_lang = all_langs.to_seq
@@ -42,8 +43,8 @@ proc execute*(code: string, lang: Lang, verbose: bool) =
 
     assert closest_directly_executable_lang.is_some, "No possible conversion"
 
-    code = convert(code, lang, closest_directly_executable_lang.get, verbose)
+    code = convert(code, lang, closest_directly_executable_lang.get)
     lang = closest_directly_executable_lang.get
-    if verbose: echo "Conversion ok"
+    verbose.info "Conversion ok"
 
-  executors[lang](code, verbose)
+  executors[lang](code)

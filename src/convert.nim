@@ -10,13 +10,14 @@ import os
 import util
 import langs
 import builds
+import verbose
 
 # converter[(lang1, lang2)] is a converter from lang1 to lang2, if it exists
-var converters: Table[(Lang, Lang), proc(code: string, verbose: bool): string]
+var converters: Table[(Lang, Lang), proc(code: string): string]
 
-proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(code: string, verbose: bool): string =
-  return proc(code: string, verbose: bool): string =
-    builds.ensure_at_latest converter_dir_path, verbose
+proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(code: string): string =
+  return proc(code: string): string =
+    builds.ensure_at_latest converter_dir_path
     let (output, err_code) = exec_cmd_ex(&"(cd {converter_dir_path} && echo {code.quote_shell} | sh _run.sh)")
     assert err_code == 0, &"Error converting {from_lang} -> {to_lang}:\n{output}"
     return output
@@ -63,18 +64,18 @@ proc calc_conversion_chain*(from_lang, to_lang: Lang): Option[seq[Lang]] =
 proc is_convertable_to*(from_lang, to_lang: Lang): bool =
   calc_conversion_chain(from_lang, to_lang).is_some
 
-proc convert*(code: string, from_lang, to_lang: Lang, verbose: bool): string =
+proc convert*(code: string, from_lang, to_lang: Lang): string =
   assert from_lang.is_convertable_to(to_lang), &"Cannot convert from {from_lang} to {to_lang}"
 
   let chain = calc_conversion_chain(from_Lang, to_lang).get
 
-  if verbose: echo &"Converting {from_lang} -> {to_lang} via {chain.join(\" -> \")}"
+  verbose.info &"Converting {from_lang} -> {to_lang} via {chain.join(\" -> \")}"
 
   # Begin the conversions!
   var code = code
   var cur_lang = from_lang
   for next_lang in chain[1 ..< chain.len]:  # first in chain is from_lang
-    code = converters[(cur_lang, next_lang)](code, verbose)
+    code = converters[(cur_lang, next_lang)](code)
     cur_lang = next_lang
 
   return code
