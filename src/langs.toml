@@ -7,3 +7,8 @@ page = "http://esolangs.org/wiki/brainfuck"
 name = "Ook!"
 code = "ook"
 page = "http://esolangs.org/wiki/Ook"
+
+[[langs]]
+name = "triad"
+code = "triad"
+page = "https://esolangs.org/wiki/Triad"
