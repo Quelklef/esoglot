@@ -1,3 +1,9 @@
+
+# Each language must be given the following attributes:
+# name: the official name of the language
+# code: a unique alphanumeric-and-underscore-only string, used to refer to the language when interfacing with esoglot
+# page: a website for the language, if applicable
+
 [[langs]]
 name = "brainfuck"
 code = "brainfuck"
