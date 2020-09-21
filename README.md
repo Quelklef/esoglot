@@ -39,16 +39,19 @@ If Esoglot doesn't know how to execute the given language, it will try to conver
 
 [comment]: <> (BEGIN LANG LIST)
 
-- [**Brainfuck**](http://esolangs.org/wiki/brainfuck)
+- [**brainfuck**](http://esolangs.org/wiki/brainfuck)
+  - Executable
+- [**triad**](https://esolangs.org/wiki/Triad)
   - Executable
 - [**Ook!**](http://esolangs.org/wiki/Ook)
-  - Convertable to Brainfuck
+  - Convertable to brainfuck
 
 [comment]: <> (END LANG LIST)
 
 ## Contributing
 
 TODO
+
 
 
 
