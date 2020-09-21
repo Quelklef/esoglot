@@ -1,5 +1,5 @@
+import strformat
 import strutils
-import parseopt
 import options
 import tables
 import sets
@@ -10,36 +10,73 @@ import execute
 import verbose
 import langs
 
-when is_main_module:
-  var flags = initHashSet[string]()
-  var pairs = initTable[string, string]()
-  var words = newSeq[string]()
+type CliParseError = object of CatchableError
 
-  let aliases = {
-    "f": "from",
-    "t": "to",
-    "l": "lang",
-    "v": "verbose",
-  }.toTable
+proc parse_cli_pair(word: string): (string, string) =
+  let i = word.find(':')
+  return (word[0 ..< i], word[i + 1 ..< word.len])
 
-  var parser = init_opt_parser(command_line_params().join(" "))
-  for opt_kind, opt_key, opt_val in parser.getopt:
-    case opt_kind
-    of cmdArgument:
-      words.add(opt_key)
-    of cmdShortOption, cmdLongOption:
-      let key = if opt_key in aliases: aliases[opt_key] else: opt_key
-      if opt_val == "":
-        flags.incl: key
+proc parse_cli(
+  aliases: Table[string, string],
+  flags: HashSet[string],
+  pairs: HashSet[string],
+): tuple[
+  flags: HashSet[string],
+  pairs: Table[string, string],
+  words: seq[string],
+] =
+
+  result = (
+    flags: initHashSet[string](),
+    pairs: initTable[string, string](),
+    words: newSeq[string](),
+  )
+
+  for param in command_line_params():
+
+    let kind =
+      if param.starts_with("--"): "long"
+      elif param.starts_with("-"): "short"
+      else: "word"
+
+    let content =
+      if kind == "long": param[2 ..< param.len]
+      elif kind == "short": param[1 ..< param.len]
+      else: param
+
+    if kind in ["long", "short"]:
+      if ':' in content:
+        var (name, val) = parse_cli_pair(content)
+        if kind == "short": name = aliases[name]
+        if name notin pairs:
+          raise CliParseError.newException(&"Unrecognized parameter: {name}")
+        result.pairs[name] = val
       else:
-        pairs[key] = opt_val
-    of cmdEnd:
-      discard
+        var name = content
+        if kind == "short": name = aliases[name]
+        if name notin flags:
+          raise CliParseError.newException(&"Unrecognized flag: {name}")
+        result.flags.incl content
+    else:
+      result.words.add content
+
+when is_main_module:
+
+  let (flags, pairs, words) = parse_cli(
+    {
+      "f": "from",
+      "t": "to",
+      "l": "lang",
+      "v": "verbose",
+    }.toTable,
+    ["verbose"].toHashSet,
+    ["from", "to", "lang"].toHashSet,
+  )
 
   if "verbose" in flags:
     verbose.verbosity = v_all
 
-  let command = words[0]
+  let command = if words.len == 0: "" else: words[0]
   assert command in ["c", "e"], "Expected either 'c' (convert) or 'e' (execute)"
 
   if command == "c":
