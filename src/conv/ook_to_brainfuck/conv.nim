@@ -1,7 +1,11 @@
 import os
 import strutils
 
-var ook_code = stdin.read_all
+if param_count() != 1:
+  echo "Expected exactly 1 parameter"
+  quit 1
+
+var ook_code = param_str(1)
 var bf_code: string = ""
 
 const mapping = {

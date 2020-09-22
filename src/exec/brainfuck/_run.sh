@@ -1,1 +1,1 @@
-echo $(cat) | ./exec_bf
+./exec_bf "$1"

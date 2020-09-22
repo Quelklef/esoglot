@@ -1,1 +1,1 @@
-echo $(cat) | ./triad
+./triad "$1"

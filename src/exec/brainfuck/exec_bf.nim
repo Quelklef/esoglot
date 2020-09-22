@@ -1,5 +1,6 @@
 import strutils
 import sequtils
+import os
 
 proc abort(msg: string): void =
   echo msg
@@ -133,7 +134,11 @@ proc exec(instrs: seq[Instr]) =
       instr_ptr = instr.target
 
 when is_main_module:
-  let bf_code = stdin.read_all
-  let instrs = parse(bf_code)
-  exec instrs
-  stdout.close
+  if param_count() != 1:
+    echo "Expected exactly 1 argument"
+    quit 1
+  else:
+    let bf_code = param_str(1)
+    let instrs = parse(bf_code)
+    exec instrs
+    stdout.close

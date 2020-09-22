@@ -42,10 +42,10 @@ echo "..." | ./esoglot c --from:ook --to:brainfuck --verbose
 - `src/langs.toml`: metadata about languages supported by esoglot. Includes:
 - `src/conv/`: Contains all the esoglot converters (cross-compilers). Each is in a folder with the format `{FROM-LANG}_to_{TO-LANG}`, which includes:
   - `_build.sh`: a script that builds the converter, which may be written in any programming language
-  - `_run.sh`: a script that runs the converter. It should take the original source code from stdin and output the converted code to stdout.
+  - `_run.sh`: a script that runs the converter. It should take the original source code as the only argument and output the converted code to stdout.
 - `src/exec/`: Contains all the esoglot executors (interpreters). Each is in a folder with the name of the language code, which includes:
   - `_build.sh`: a script that builds the executor, which may be written in any programming language
-  - `_run.sh`: a script that runs the executor. It should take the source code from stdin and run it.
+  - `_run.sh`: a script that runs the executor. It should take the source code as the only argument and run it.
 - `src/prog/`: Contains sample programs. Includes folders which represent behaviour and house implementations of said behaviour. For instance, `src/prog/hello_world/` contains Hello World programs, and `src/prog/hello_world/brainfuck.impl` is a brainfuck implementation of Hello World. Each folder also contains a `_cases.toml` file, which includes test cases.
 
 ## Contributing

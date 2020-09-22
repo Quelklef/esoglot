@@ -18,7 +18,7 @@ var converters: Table[(Lang, Lang), proc(code: string): string]
 proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(code: string): string =
   return proc(code: string): string =
     builds.ensure_at_latest converter_dir_path
-    let (output, err_code) = exec_cmd_ex(&"(cd {converter_dir_path} && echo {code.quote_shell} | sh _run.sh)")
+    let (output, err_code) = exec_cmd_ex(&"(cd {converter_dir_path} && sh ./_run.sh {code.quote_shell})")
     assert err_code == 0, &"Error converting {from_lang} -> {to_lang}:\n{output}"
     return output
 
@@ -47,17 +47,21 @@ proc calc_conversion_chain*(from_lang, to_lang: Lang): Option[seq[Lang]] =
   var paths = @[@[from_lang]]
 
   while true:
+
     for path in paths:
       if path.last == to_lang:
         return some(path)
 
-    if seen.len == langs.all_langs.len:
-      break
+    let seen_len = seen.len
 
-    for path_i, path in paths:
+    for path_i, path in paths[0 ..< paths.len]:
       let novel = directly_convertable_from(path.last).filterIt(it notin seen)
       for it in novel: seen.incl it
       paths[path_i .. path_i] = novel.mapIt(path & @[it])
+
+    if seen_len == seen.len:
+      # Didn't see anything new
+      break
 
   return none(seq[Lang])
 

@@ -5,6 +5,8 @@ import Data.Functor
 import Data.Maybe
 import Data.List (isPrefixOf)
 import Data.Function ((&))
+import System.Environment
+import System.Exit (exitWith, ExitCode(ExitFailure))
 import qualified Data.Map as Map
 
 import Debug.Trace
@@ -353,9 +355,15 @@ doRun stdin code = do
 
 main :: IO ()
 main = do
-  code <- getLine
-  let result = doRun "" code
-  putStr $ case result of
-    Left err -> "Error: " ++ err
-    Right str -> str
+  stdin <- getContents
+  args <- getArgs
+  if length args /= 1 then do
+    putStrLn "Expected exactly 1 argument"
+    exitWith (ExitFailure 1)
+  else do
+    let triadCode = head args
+    let result = doRun stdin triadCode
+    putStr $ case result of
+      Left err -> "Error: " ++ err
+      Right str -> str
 

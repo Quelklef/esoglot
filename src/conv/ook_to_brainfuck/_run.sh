@@ -1,1 +1,1 @@
-echo $(cat) | ./conv
+./conv "$1"

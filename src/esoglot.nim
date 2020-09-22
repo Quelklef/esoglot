@@ -68,9 +68,10 @@ when is_main_module:
       "t": "to",
       "l": "lang",
       "v": "verbose",
+      "s": "source",
     }.toTable,
     ["verbose"].toHashSet,
-    ["from", "to", "lang"].toHashSet,
+    ["source", "from", "to", "lang"].toHashSet,
   )
 
   if "verbose" in flags:
@@ -82,10 +83,10 @@ when is_main_module:
   if command == "c":
     let from_lang = pairs["from"].parse_lang.get
     let to_lang = pairs["to"].parse_lang.get
-    let code = stdin.read_all.string
+    let code = pairs["source"].string
     let converted = convert(code, from_lang, to_lang)
     echo converted
   else:
     let lang = pairs["lang"].parse_lang.get
-    let code = stdin.read_all.string
+    let code = pairs["source"].string
     execute(code, lang)

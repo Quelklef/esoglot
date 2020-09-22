@@ -18,7 +18,7 @@ var executors: Table[Lang, proc(code: string)]
 proc make_executor(executor_name: string, lang: Lang): proc(code: string) =
   return proc(code: string) =
     builds.ensure_at_latest &"./exec/{executor_name}"
-    let err_code = exec_cmd(&"(cd ./exec/{executor_name} && echo {code.quote_shell} | sh _run.sh)")
+    let err_code = exec_cmd(&"(cd ./exec/{executor_name} && sh _run.sh {code.quote_shell})")
     assert err_code == 0, &"Error executing {lang} code"
 
 for executor_dir in walk_dir("./exec", true):
