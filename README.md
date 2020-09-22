@@ -15,11 +15,11 @@ Esoglot is written in [Nim](https://nim-lang.org/), so make sure you have that i
 nim c ./esoglot.nim
 
 # Execute some code as a language
-bf_hello_world="+[+++<+<<->>>[+>]>+<<++]>>>>--.>.>>>..+++.>>++.<<<.>>--.<.+++.------.<<<-.<<.
-echo "$bf_hello_world" | ./esoglot e --lang:brainfuck --verbose
+bf_hello_world="+[+++<+<<->>>[+>]>+<<++]>>>>--.>.>>>..+++.>>++.<<<.>>--.<.+++.------.<<<-.<<."
+./esoglot e --lang:brainfuck --verbose --source:"$bf_hello_world"
 
 # Or cross-compile it into a different language
-echo "..." | ./esoglot c --from:ook --to:brainfuck --verbose
+./esoglot c --from:ook --to:brainfuck --verbose --source:"..."
 ```
 
 ## Languages Supported
@@ -41,7 +41,7 @@ echo "..." | ./esoglot c --from:ook --to:brainfuck --verbose
 
 ## Project Structure
 
-- `src/langs.toml`: metadata about languages supported by esoglot. Includes:
+- `src/langs.toml`: metadata about languages supported by esoglot.
 - `src/conv/`: Contains all the esoglot converters (cross-compilers). Each is in a folder with the format `{FROM-LANG}_to_{TO-LANG}`, which includes:
   - `_build.sh`: a script that builds the converter, which may be written in any programming language
   - `_run.sh`: a script that runs the converter. It should take the original source code as the only argument and output the converted code to stdout.
