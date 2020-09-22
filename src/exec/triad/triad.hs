@@ -75,12 +75,12 @@ data PreInstruction =
   deriving (Show)
 
 data BlockKind = Conditional | Loop
-type LoopStack = [(BlockKind, Label)]
+type BlockStack = [(BlockKind, Label)]
 
 doTranslate :: String -> Result [PreInstruction]
 doTranslate code = translate [] 0 code
 
-translate :: LoopStack -> Label -> String -> Result [PreInstruction]
+translate :: BlockStack -> Label -> String -> Result [PreInstruction]
 translate blockStack nextLabel "" = Right []
 translate blockStack nextLabel code
 
