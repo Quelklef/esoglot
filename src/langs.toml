@@ -10,6 +10,11 @@ code = "brainfuck"
 page = "http://esolangs.org/wiki/brainfuck"
 
 [[langs]]
+name = "infinifuck"
+code = "infinifuck"
+page = "https://esolangs.org/wiki/Infinifuck"
+
+[[langs]]
 name = "Ook!"
 code = "ook"
 page = "http://esolangs.org/wiki/Ook"
