@@ -4,3 +4,7 @@
 !*.*
 
 **/.esoglot_last_build_time.txt
+
+# Haskell intermediate files
+*.hi
+*.o
