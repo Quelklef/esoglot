@@ -24,13 +24,10 @@ proc make_converter(from_lang, to_lang: Lang, converter_dir_path: string): proc(
 
 for converter_dir in walk_dir("./conv", true):
   let parts = converter_dir.path.split("_to_")
-  let converter_dir_path = "./conv" / converter_dir.path
-  let converter_path = converter_dir_path / "conv"
-  assert file_exists(converter_path), &"Folder '{converter_dir_path}' exists but is missing converter '{converter_path}'"
   let from_lang = parts[0].parse_lang.get
   let to_lang = parts[1].parse_lang.get
   assert (from_lang, to_lang) notin converters, &"Duplicate converter {from_lang} -> {to_lang}"
-  converters[(from_lang, to_lang)] = make_converter(from_lang, to_lang, converter_dir_path)
+  converters[(from_lang, to_lang)] = make_converter(from_lang, to_lang, "./conv" / converter_dir.path)
 
 proc directly_convertable_from*(from_lang: Lang): seq[Lang] =
   for to_lang in langs.all_langs:
