@@ -7,6 +7,7 @@ import Data.List (isPrefixOf)
 import Data.Function ((&))
 import System.Environment
 import System.Exit (exitWith, ExitCode(ExitFailure))
+import System.IO (hReady, stdin)
 import qualified Data.Map as Map
 
 import Debug.Trace
@@ -196,7 +197,7 @@ data State = State
   -- Index of current instruction
   , instrPtr :: Int
   -- Input string
-  , stdin :: String
+  , textIn :: String
   -- Used for a{}. and b{}. loops.
   -- When one of these loops is encountered, the value of a/b is pushed onto the loop stack.
   -- It is then decremented every loop until it is zero, at which point the loop ends.
@@ -256,7 +257,7 @@ advance state = state { instrPtr = instrPtr state + 1 }
 -- Execute a single instruction, returning a new state and some text output
 -- If the instruction pointer is out of bounds, returns (state, "")
 step :: State -> (State, String)
-step (state @ State { a, b, r, instrs, instrPtr, stdin, loopStack }) =
+step (state @ State { a, b, r, instrs, instrPtr, textIn, loopStack }) =
   case nth instrs instrPtr of
     Nothing -> (state, "")
     Just instr -> case instr of
@@ -282,8 +283,8 @@ step (state @ State { a, b, r, instrs, instrPtr, stdin, loopStack }) =
       PutAscii -> (advance state, [chr $ r `mod` 128])
 
       GetInteger ->
-        let (n, stdin') = parseAndConsumeInt stdin
-            state' = state { stdin = stdin', r = n } & advance
+        let (n, textIn') = parseAndConsumeInt textIn
+            state' = state { textIn = textIn', r = n } & advance
         in (state', "")
         where
           parseAndConsumeInt :: String -> (Int, String)
@@ -295,8 +296,8 @@ step (state @ State { a, b, r, instrs, instrPtr, stdin, loopStack }) =
             in (val, restChars)
 
       GetAscii ->
-        let (char, stdin') = parseAndConsumeChar stdin
-            state' = state { stdin = stdin', r = ord char } & advance
+        let (char, textIn') = parseAndConsumeChar textIn
+            state' = state { textIn = textIn', r = ord char } & advance
         in (state', "")
         where
           parseAndConsumeChar :: String -> (Char, String)
@@ -331,11 +332,11 @@ exec state =
      else out ++ exec state'
 
 doExec :: String -> [Instruction] -> String
-doExec stdin instrs =
+doExec textIn instrs =
   exec State
     { instrs = instrs
     , instrPtr = 0
-    , stdin = stdin
+    , textIn = textIn
     , loopStack = []
     , a = 0
     , b = 0
@@ -347,22 +348,23 @@ doExec stdin instrs =
 
 -- Compile and execute some code
 doRun :: String -> String -> Result String
-doRun stdin code = do
+doRun textIn code = do
   translated <- doTranslate code
   let resolved = doResolve translated
-  let stdout = doExec stdin resolved
-  return $ stdout
+  let textOut = doExec textIn resolved
+  return $ textOut
 
 main :: IO ()
 main = do
-  stdin <- getContents
+  stdinEmpty <- not <$> hReady stdin
+  textIn <- if stdinEmpty then return "" else getContents
   args <- getArgs
   if length args /= 1 then do
     putStrLn "Expected exactly 1 argument"
     exitWith (ExitFailure 1)
   else do
     let triadCode = head args
-    let result = doRun stdin triadCode
+    let result = doRun textIn triadCode
     putStr $ case result of
       Left err -> "Error: " ++ err
       Right str -> str
