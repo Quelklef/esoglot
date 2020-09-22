@@ -3,6 +3,7 @@
 !/**/
 !*.*
 
+# Esoglot temp files
 **/.esoglot_last_build_time.txt
 
 # Haskell intermediate files
