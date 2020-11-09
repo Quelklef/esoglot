@@ -32,6 +32,7 @@ bf_hello_world="+[+++<+<<->>>[+>]>+<<++]>>>>--.>.>>>..+++.>>++.<<<.>>--.<.+++.--
   - Executable
 - [**infinifuck**](https://esolangs.org/wiki/Infinifuck)
   - Executable
+  - Convertable to brainfuck
 - [**triad**](https://esolangs.org/wiki/Triad)
   - Executable
 - [**Ook!**](http://esolangs.org/wiki/Ook)
@@ -61,4 +62,5 @@ If you would like to contribute, please do! I have very few rules:
   - Oh, and it'd be super cool if you added some sample programs to `src/prog/`.
 - If you would like to editing an existing converter (cross-compiler) or executor (interpreter) that *isn't* yours, go ahead, just be respectful.
 - If you would like to edit Esoglot itself, I will be more strict, but help is still appricated. It would be great if you ran planned changes by me ahead-of-time, either by opening a Github issue or contacting me on Twitter ([@Quelklef](https://twitter.com/quelklef)) or Discord (@Quelklef#8261).
+
 
