@@ -73,8 +73,8 @@ of instructions called the "preamble" at the front of the result.
 
 Also, because infinifuck and brainfuck operations are called the same thing (+-><[].,),
 we will refer to the infinifuck operations instead as:
-  GETC
-  DEC
+  PLUS
+  MINUS
   RIGHT
   LEFT
   OPEN
